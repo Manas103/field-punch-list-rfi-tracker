@@ -1,0 +1,11 @@
+opened punch item 1: [mep] duct hanger missing insulation clamp
+opened punch item 2: [architectural] door hardware missing closer arm
+opened punch item 3: [structural] footing rebar cover under minimum
+opened RFI 1: [mep] duct routing conflicts with beam, confirm reroute
+
+closing 2 of 3 punch items, answering the RFI, leaving 1 item open...
+
+turnover check: level L04 room R412: turnover refused, still open: punch item 3 (footing rebar cover under minimum)
+
+closing the remaining item...
+turnover check: level L04 room R412: turnover allowed

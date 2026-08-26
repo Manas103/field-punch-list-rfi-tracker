@@ -1,0 +1,3 @@
+seeded premature closeouts: 30, refused naming the item still open: 30
+false holds across 40 clean rooms: 0
+synthetic dataset: 2600 punch items, 420 RFIs

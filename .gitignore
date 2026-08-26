@@ -1,0 +1,18 @@
+# Python backend
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node frontend
+frontend/node_modules/
+# regenerate with: cd frontend && npm run build
+frontend/dist/
+frontend/*.tsbuildinfo
+
+# editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

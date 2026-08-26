@@ -1,0 +1,32 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-8.3.4, pluggy-1.6.0 -- C:\Users\Manas\Downloads\Total Job Application process flow\projects\field-punch-list-rfi-tracker\backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Manas\Downloads\Total Job Application process flow
+configfile: pytest.ini
+plugins: anyio-4.14.2
+collecting ... collected 22 items
+
+tests\test_api.py::test_open_close_and_turnover_over_http PASSED         [  4%]
+tests\test_api.py::test_close_without_evidence_returns_409 PASSED        [  9%]
+tests\test_api.py::test_rfi_open_and_answer_over_http PASSED             [ 13%]
+tests\test_closeout.py::test_close_refused_without_any_evidence PASSED   [ 18%]
+tests\test_closeout.py::test_close_refused_with_evidence_for_a_different_item PASSED [ 22%]
+tests\test_closeout.py::test_close_succeeds_with_matching_evidence PASSED [ 27%]
+tests\test_closeout.py::test_double_close_is_refused PASSED              [ 31%]
+tests\test_closeout.py::test_the_event_log_and_evidence_tables_are_never_updated_or_deleted PASSED [ 36%]
+tests\test_generator_scale.py::test_over_2500_synthetic_punch_items_and_400_rfis_all_routed_and_located PASSED [ 40%]
+tests\test_generator_scale.py::test_every_room_gets_at_least_one_punch_item PASSED [ 45%]
+tests\test_postgres_store.py::test_postgresql_backend_skips_cleanly_when_not_running SKIPPED [ 50%]
+tests\test_rfi_aging.py::test_rfi_is_open_within_the_sla PASSED          [ 54%]
+tests\test_rfi_aging.py::test_rfi_escalates_after_the_sla_if_unanswered PASSED [ 59%]
+tests\test_rfi_aging.py::test_answered_rfi_never_escalates_even_long_after_the_sla PASSED [ 63%]
+tests\test_rfi_aging.py::test_rfi_is_routed_to_the_discipline_its_question_names PASSED [ 68%]
+tests\test_routing.py::test_mep_keywords_route_to_mep PASSED             [ 72%]
+tests\test_routing.py::test_structural_keywords_route_to_structural PASSED [ 77%]
+tests\test_routing.py::test_unmatched_description_defaults_to_architectural PASSED [ 81%]
+tests\test_routing.py::test_mep_keyword_takes_priority_when_multiple_disciplines_are_mentioned PASSED [ 86%]
+tests\test_turnover_gate.py::test_30_of_30_seeded_premature_closeouts_refused_naming_the_item_still_open PASSED [ 90%]
+tests\test_turnover_gate.py::test_0_false_holds_across_40_clean_rooms PASSED [ 95%]
+tests\test_turnover_gate.py::test_an_unanswered_rfi_alone_blocks_turnover_even_with_no_open_punch_items PASSED [100%]
+
+======================== 21 passed, 1 skipped in 3.13s ========================
