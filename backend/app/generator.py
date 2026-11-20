@@ -44,6 +44,45 @@ _RFI_QUESTIONS = [
     "door swing conflicts with adjacent casework, confirm orientation",
 ]
 
+# Near-duplicate rewordings of the lists above, one per entry, at the same
+# index: a different reporter describing the same issue in slightly
+# different words (reordered clauses, an added "please"/"the"/"is"), not a
+# true paraphrase with no shared vocabulary. Measured Jaccard token
+# similarity against the original is 0.64-1.0 for every entry (see
+# docs/dedup_benchmark_output.txt), comfortably above dedup.py's 0.5
+# threshold; this is the honest limit of a keyword-overlap dedup rule, not
+# an accident of these specific sentences (see README "Honest framing").
+_PUNCH_NEAR_DUPLICATES = [
+    "insulation clamp missing from duct hanger",
+    "hvac diffuser off center from the ceiling grid, installed incorrectly",
+    "sprinkler head clearance is below the code minimum",
+    "conduit run is not secured to the unistrut",
+    "outlet cover plate is missing in the corridor",
+    "panelboard door does not fully close",
+    "beam camber at the gridline exceeds tolerance",
+    "column base plate grout is incomplete",
+    "slab control joint saw cut was missed",
+    "footing rebar cover is under the minimum",
+    "door hardware is missing a closer arm",
+    "ceiling tile was damaged during mep rough-in",
+    "wall paint touch up is needed at the patch",
+    "baseboard gap exceeds 1/8 of an inch",
+    "casework drawer is misaligned",
+]
+
+_RFI_NEAR_DUPLICATES = [
+    "duct routing conflicts with the structural beam at this gridline, please confirm reroute",
+    "hvac unit weight exceeds the roof structural capacity shown on the drawing, please confirm",
+    "plumbing riser location is not shown on this sheet, confirm the routing",
+    "electrical panel clearance conflicts with the door swing, confirm the relocation",
+    "beam connection detail is not shown for this condition, please confirm detail",
+    "column schedule conflicts with the foundation plan at this gridline",
+    "slab depression dimension is unclear at this location, confirm the depth",
+    "wall type at this partition does not match the legend, please confirm type",
+    "ceiling height conflicts with the duct depth shown, confirm the clearance",
+    "door swing conflicts with the adjacent casework, confirm the orientation",
+]
+
 
 def build_synthetic_dataset(
     session: Session,
@@ -88,3 +127,58 @@ def build_synthetic_dataset(
         "punch_item_count": target_punch_items,
         "rfi_count": target_rfis,
     }
+
+
+def build_dedup_ground_truth_corpus(
+    session: Session,
+    rng: random.Random,
+    num_rooms: int = 100,
+    opened_on: datetime.datetime = datetime.datetime(2026, 9, 1),
+) -> dict:
+    """A dedicated corpus for measuring dedup accuracy against a known
+    truth, separate from the 2,600/420 production dataset above. Each of
+    `num_rooms` rooms gets exactly one "root" report (a punch item or an
+    RFI, alternating), a seeded 0-3 near-duplicate rewordings of it (from
+    `_PUNCH_NEAR_DUPLICATES` / `_RFI_NEAR_DUPLICATES`), and exactly one
+    "distractor" report describing a genuinely different issue in the same
+    room, so the measurement exercises both "must merge" and "must not
+    merge" within the one room a dedup rule actually has to decide between.
+
+    Returns `{"true_groups": {root_report_id: frozenset(all_ids_in_truth)},
+    "distractor_ids": set(...)}`; a caller runs `find_duplicate_groups` on
+    the full corpus and compares its predicted groups against this truth.
+    """
+    true_groups: dict[str, frozenset] = {}
+    distractor_ids: set[str] = set()
+
+    for i in range(num_rooms):
+        level, room = f"D{i // 20:02d}", f"T{i % 20:03d}"
+        sheet = f"A-{(i % 40) + 100}"
+        vocab_index = i % len(_PUNCH_DESCRIPTIONS)
+        num_duplicates = rng.randint(0, 3)
+
+        if i % 2 == 0:
+            root = open_punch_item(session, level, room, sheet, _PUNCH_DESCRIPTIONS[vocab_index], opened_on)
+            root_id = f"punch:{root.id}"
+            group_ids = {root_id}
+            for _ in range(num_duplicates):
+                dup = open_punch_item(session, level, room, sheet, _PUNCH_NEAR_DUPLICATES[vocab_index], opened_on)
+                group_ids.add(f"punch:{dup.id}")
+            distractor_text = _PUNCH_DESCRIPTIONS[(vocab_index + 1) % len(_PUNCH_DESCRIPTIONS)]
+            distractor = open_punch_item(session, level, room, sheet, distractor_text, opened_on)
+            distractor_ids.add(f"punch:{distractor.id}")
+        else:
+            root = open_rfi(session, level, room, sheet, _RFI_QUESTIONS[vocab_index % len(_RFI_QUESTIONS)], opened_on)
+            root_id = f"rfi:{root.id}"
+            group_ids = {root_id}
+            rfi_vocab_index = vocab_index % len(_RFI_QUESTIONS)
+            for _ in range(num_duplicates):
+                dup = open_rfi(session, level, room, sheet, _RFI_NEAR_DUPLICATES[rfi_vocab_index], opened_on)
+                group_ids.add(f"rfi:{dup.id}")
+            distractor_text = _RFI_QUESTIONS[(rfi_vocab_index + 1) % len(_RFI_QUESTIONS)]
+            distractor = open_rfi(session, level, room, sheet, distractor_text, opened_on)
+            distractor_ids.add(f"rfi:{distractor.id}")
+
+        true_groups[root_id] = frozenset(group_ids)
+
+    return {"true_groups": true_groups, "distractor_ids": distractor_ids}

@@ -1,0 +1,11 @@
+ground truth corpus: 344 reports across 100 rooms
+same_room_only=True (fixed design): true duplicate pairs caught 144/144, false merges 0
+same_room_only=False (the first, broken design): false merges 1273 (out of 344 reports compared pairwise with no room restriction)
+production dataset: 2600 punch items, 420 RFIs
+ranked requirements produced: 2668 (from 3020 reports)
+top 5 by priority score:
+  REQ-L01-R010-54 score=7.40 discipline=mep fan_in=3 unanswered_rfi=False text='sprinkler head clearance below code minimum'
+  REQ-L01-R034-201 score=7.40 discipline=mep fan_in=3 unanswered_rfi=False text='sprinkler head clearance below code minimum'
+  REQ-L02-R017-403 score=7.40 discipline=structural fan_in=3 unanswered_rfi=False text='beam camber exceeds tolerance at gridline'
+  REQ-L02-R034-501 score=7.40 discipline=structural fan_in=3 unanswered_rfi=False text='footing rebar cover under minimum'
+  REQ-L03-R002-608 score=7.40 discipline=structural fan_in=3 unanswered_rfi=False text='column base plate grout incomplete'
